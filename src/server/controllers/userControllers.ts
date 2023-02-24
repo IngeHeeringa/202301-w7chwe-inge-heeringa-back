@@ -7,7 +7,7 @@ export const registerUser = async (
   req: Request<
     Record<string, unknown>,
     Record<string, unknown>,
-    UserRegisterDataStructure
+    UserDataStructure
   >,
   res: Response,
   next: NextFunction
