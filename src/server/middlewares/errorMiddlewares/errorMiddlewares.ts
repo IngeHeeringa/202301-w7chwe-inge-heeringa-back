@@ -1,6 +1,6 @@
 import createDebug from "debug";
 import { type NextFunction, type Request, type Response } from "express";
-import { CustomError } from "../../CustomError.ts/CustomError.js";
+import { CustomError } from "../../../CustomError.ts/CustomError.js";
 
 const debug = createDebug("social:generalErrors");
 
@@ -25,6 +25,7 @@ export const generalError = (
   next: NextFunction
 ) => {
   debug(error.message);
+
   res
     .status(error.statusCode || 500)
     .json({ error: error.publicMessage || "Something went wrong" });
