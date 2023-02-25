@@ -3,6 +3,25 @@ import bcryptjs from "bcryptjs";
 import User from "../../database/models/User.js";
 import { CustomError } from "../../CustomError.ts/CustomError.js";
 
+export const getUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const users = await User.find().exec();
+    res.status(200).json({ users });
+  } catch (error: unknown) {
+    const getUsersError = new CustomError(
+      (error as Error).message,
+      500,
+      "Sorry, we could not find any users"
+    );
+
+    next(getUsersError);
+  }
+};
+
 export const registerUser = async (
   req: Request<
     Record<string, unknown>,
