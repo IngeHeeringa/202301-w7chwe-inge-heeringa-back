@@ -17,6 +17,12 @@ app.use(cors());
 
 app.use(express.json());
 
+app.get("/", (req, res, next) =>
+  res
+    .status(200)
+    .json({ message: "Under construction, please come back later" })
+);
+
 app.use("/users", userRouter);
 
 app.use(notFoundError);
