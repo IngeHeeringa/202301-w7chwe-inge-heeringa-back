@@ -1,7 +1,12 @@
 import { type NextFunction, type Request, type Response } from "express";
-import bcryptjs from "bcryptjs";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../../database/models/User.js";
 import { CustomError } from "../../CustomError.ts/CustomError.js";
+import {
+  type UserDataStructure,
+  type UserCredentialsStructure,
+} from "../../types.js";
 
 export const getUsers = async (
   req: Request,
@@ -34,7 +39,7 @@ export const registerUser = async (
   try {
     const { username, password, email } = req.body;
 
-    const hashedPassword = await bcryptjs.hash(password, 8);
+    const hashedPassword = await bcrypt.hash(password, 8);
 
     const avatar = req.file?.filename;
 
@@ -57,4 +62,39 @@ export const registerUser = async (
 
     next(customError);
   }
+};
+
+export const loginUser = async (
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    UserCredentialsStructure
+  >,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username }).exec();
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    const customError = new CustomError(
+      "Wrong credentials",
+      401,
+      "Wrong credentials"
+    );
+    next(customError);
+    return;
+  }
+
+  const jwtPayload = {
+    sub: user._id,
+    username,
+  };
+
+  const token = jwt.sign(jwtPayload, process.env.JWT_SECRET!, {
+    expiresIn: "1d",
+  });
+
+  res.status(200).json({ token });
 };
